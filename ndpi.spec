@@ -1,0 +1,71 @@
+%define	commit 2678e96
+Summary:	nDPI Open source deep packet inspection
+Name:		ndpi
+Version:	1.4.0
+Release:	%{commit}
+License:	LGPLv3
+Group:		System Environment/Libraries
+URL:		http://www.ntop.org/products/ndpi/
+# svn co https://svn.ntop.org/svn/ntop/trunk/nDPI ndpi-1.4.0
+Source0:	%{name}-%{version}-%{release}.tar.gz
+BuildRequires:	autoconf automake libtool iptables-devel libpcap-devel
+
+%description
+nDPI is a ntop-maintained superset of the popular OpenDPI library. Released
+under the GPL license, its goal is to extend the original library by adding
+new protocols that are otherwise available only on the paid version of OpenDPI.
+In addition to Unix platforms, we also support Windows, in order to provide
+you a cross-platform DPI experience. Furthermore, we have modified nDPI do be
+more suitable for traffic monitoring applications, by disabling specific
+features that slow down the DPI engine while being them un-necessary for
+network traffic monitoring.
+
+nDPI is used by both ntop and nProbe for adding application-layer detection of
+protocols, regardless of the port being used. This means that it is possible
+to both detect known protocols on non-standard ports (e.g. detect http non
+ports other than 80), and also the opposite (e.g. detect Skype traffic on port
+80). This is because nowadays the concept of port=application no longer holds.
+
+
+%package devel
+Summary:	Header files and libraries for developing applications for nDPI
+Group:		Development/Libraries
+
+%description  devel
+The %{name}-devel package contains libraries and header files for
+developing applications that use %{name}.
+
+
+
+%prep
+%setup -q
+
+%build
+autoreconf 
+./configure  --disable-static --prefix=%{_prefix}
+
+V=1 make %{?_smp_mflags}
+
+%install
+make install DESTDIR=$RPM_BUILD_ROOT
+mv %{buildroot}/usr/lib %{buildroot}%{_libdir}
+rm -f %{buildroot}%{_libdir}/*.la
+# re-arrange the header location
+mv %{buildroot}%{_includedir}/libndpi-*/libndpi  %{buildroot}%{_includedir}/
+(cd %{buildroot}%{_includedir}/libndpi-*; ln -s ../libndpi . )
+
+%files 
+%doc COPYING README ChangeLog
+%{_libdir}/*.so.*
+
+%files devel
+%doc ChangeLog example
+%{_includedir}/libndpi-*
+%{_includedir}/libndpi/*.h
+%{_libdir}/*.so
+%{_libdir}/pkgconfig/*.pc
+#%{_docdir}/%{name}/*.txt
+
+%changelog
+* Mon Aug 4 2014 Tonyu Chung <tonychung00@gmail.com>
+* initial rpm version for 1.4.0
