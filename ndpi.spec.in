@@ -1,7 +1,7 @@
-%define	commit 2678e96
+%define	commit  @GIT_COMMIT@
 Summary:	nDPI Open source deep packet inspection
 Name:		ndpi
-Version:	1.4.0
+Version:	@PACKAGE_VERSION@
 Release:	%{commit}
 License:	LGPLv3
 Group:		System Environment/Libraries
